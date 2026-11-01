@@ -31,6 +31,9 @@ StyledRect {
             if (item.id === "vpn")
                 return GlobalConfig.utilities.vpn.selectedProvider.length > 0;
 
+            if (item.id === "gameMode" && !Wm.isHyprland)
+                return false;
+
             seenIds.add(item.id);
             return true;
         });

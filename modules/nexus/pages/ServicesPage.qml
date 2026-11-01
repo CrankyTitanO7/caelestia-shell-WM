@@ -11,6 +11,16 @@ import qs.modules.nexus.common
 PageBase {
     id: root
 
+    // Window managers, ordered to match config::WindowManager (Hyprland, Niri)
+    readonly property list<MenuItem> wmItems: [
+        MenuItem {
+            text: "Hyprland"
+        },
+        MenuItem {
+            text: "Niri"
+        }
+    ]
+
     // Lyrics backends, ordered to match config::LyricsBackend (Auto, Local, LRCLIB, NetEase)
     readonly property list<MenuItem> lyricsItems: [
         MenuItem {
@@ -66,14 +76,28 @@ PageBase {
             }
         }
 
-        // Notifications
+        // Window manager
         SectionHeader {
             first: true
+            text: Tr.tr("Window manager")
+        }
+
+        SelectRow {
+            first: true
+            last: true
+            label: Tr.tr("Compositor")
+            subtext: Tr.tr("Window manager used by the shell")
+            menuItems: root.wmItems
+            active: root.wmItems[GlobalConfig.general.windowManager] ?? root.wmItems[0]
+            onSelected: item => GlobalConfig.general.windowManager = root.wmItems.indexOf(item)
+        }
+
+        // Notifications
+        SectionHeader {
             text: Tr.tr("Notifications")
         }
 
         NavRow {
-            first: true
             last: true
             icon: "notifications"
             text: Tr.tr("Notifications")

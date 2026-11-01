@@ -416,6 +416,7 @@ For example, to automatically hide the bar on the monitor named `DP-1`:
         }
     },
     "general": {
+        "windowManager": "Hyprland",
         "logo": "",
         "showOverFullscreen": false,
         "mediaGifSpeedAdjustment": 300,

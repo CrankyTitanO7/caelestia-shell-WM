@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import Caelestia.Config
 import Caelestia.I18n
 import qs.modules.nexus.common
+import qs.services
 
 PageBase {
     id: root
@@ -119,6 +120,7 @@ PageBase {
         }
 
         ToggleRow {
+            visible: Wm.isHyprland
             text: Tr.tr("Game mode")
             subtext: Tr.tr("Toggle game mode")
             disabled: !Config.utilities.cards.quickToggles
