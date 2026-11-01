@@ -290,7 +290,7 @@ Item {
         _workspaces = workspaces;
         _toplevels = toplevels;
 
-        const specialName = _focusedMonitor?.specialWorkspace?.name;
+        const specialName = rawFocusedMonitor?.lastIpcObject?.specialWorkspace?.name;
         if (specialName?.startsWith("special:"))
             lastSpecialWorkspace = specialName;
     }
