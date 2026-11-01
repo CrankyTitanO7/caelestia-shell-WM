@@ -7,6 +7,7 @@
 #include "settings/objectnode.hpp"
 #include "util/i18n.hpp"
 #include "common.hpp"
+#include "enums.hpp"
 
 namespace caelestia::shell::config {
 
@@ -104,6 +105,7 @@ class GeneralConfig : public settings::ObjectNode {
 
     CONFIG_GLOBAL_PROPERTY(QString, logo, {})
     CONFIG_GLOBAL_PROPERTY(QString, language, {})
+    CONFIG_ENUM_PROPERTY(WindowManager, windowManager, WindowManager::Hyprland)
     CONFIG_PROPERTY(bool, showOverFullscreen, false)
     CONFIG_PROPERTY(qreal, mediaGifSpeedAdjustment, 300)
     CONFIG_PROPERTY(qreal, sessionGifSpeed, 0.7)
