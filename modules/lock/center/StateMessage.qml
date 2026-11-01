@@ -69,25 +69,25 @@ Item {
     }
 
     readonly property string stateMsg: {
-        if (Hypr.kbLayout !== Hypr.defaultKbLayout) {
-            if (Hypr.capsLock && Hypr.numLock)
+        if (Wm.kbLayout !== Wm.defaultKbLayout) {
+            if (Wm.capsLock && Wm.numLock)
                 // TRANSLATORS: %1 = the active keyboard layout name, e.g. "English (US)"
-                return Tr.tr("Caps lock and Num lock are ON.\nKeyboard layout: %1").arg(Hypr.kbLayoutFull);
-            if (Hypr.capsLock)
+                return Tr.tr("Caps lock and Num lock are ON.\nKeyboard layout: %1").arg(Wm.kbLayoutFull);
+            if (Wm.capsLock)
                 // TRANSLATORS: %1 = the active keyboard layout name, e.g. "English (US)"
-                return Tr.tr("Caps lock is ON. Keyboard layout: %1").arg(Hypr.kbLayoutFull);
-            if (Hypr.numLock)
+                return Tr.tr("Caps lock is ON. Keyboard layout: %1").arg(Wm.kbLayoutFull);
+            if (Wm.numLock)
                 // TRANSLATORS: %1 = the active keyboard layout name, e.g. "English (US)"
-                return Tr.tr("Num lock is ON. Keyboard layout: %1").arg(Hypr.kbLayoutFull);
+                return Tr.tr("Num lock is ON. Keyboard layout: %1").arg(Wm.kbLayoutFull);
             // TRANSLATORS: %1 = the active keyboard layout name, e.g. "English (US)"
-            return Tr.tr("Keyboard layout: %1").arg(Hypr.kbLayoutFull);
+            return Tr.tr("Keyboard layout: %1").arg(Wm.kbLayoutFull);
         }
 
-        if (Hypr.capsLock && Hypr.numLock)
+        if (Wm.capsLock && Wm.numLock)
             return Tr.tr("Caps lock and Num lock are ON.");
-        if (Hypr.capsLock)
+        if (Wm.capsLock)
             return Tr.tr("Caps lock is ON.");
-        if (Hypr.numLock)
+        if (Wm.numLock)
             return Tr.tr("Num lock is ON.");
 
         return "";

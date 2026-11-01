@@ -36,7 +36,7 @@ StyledRect {
     // Entries that can shrink to nothing, spacing included
     function collapsed(entry: var): bool {
         if (entry.id === "lockStatus")
-            return !Hypr.capsLock && !Hypr.numLock;
+            return !Wm.capsLock && !Wm.numLock;
         return false;
     }
 
@@ -110,7 +110,7 @@ StyledRect {
                     delegate: EntryWrapper {
                         StyledText {
                             animate: true
-                            text: Hypr.kbLayout
+                            text: Wm.kbLayout
                             color: root.colour
                             font: Tokens.font.mono.medium
                         }

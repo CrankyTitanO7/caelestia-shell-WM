@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import Caelestia
 import Caelestia.Components
 import Caelestia.Config
@@ -13,12 +12,12 @@ import qs.services
 Item {
     id: root
 
-    required property HyprlandMonitor monitor
+    required property var monitor
 
-    readonly property int activeSpecialId: monitor?.lastIpcObject.specialWorkspace?.id ?? 0
+    readonly property int activeSpecialId: monitor?.specialWorkspace?.id ?? 0
     readonly property var wsIds: {
         const allMonitors = !Config.bar.workspaces.perMonitor;
-        return Hypr.workspaces.values.filter(w => w.name.startsWith("special:") && (allMonitors || w.monitor === root.monitor)).map(w => w.id);
+        return Wm.workspaces.filter(w => w.special && (allMonitors || w.monitorId === root.monitor?.id)).map(w => w.id);
     }
     readonly property int activeIdx: wsIds.indexOf(activeSpecialId)
     readonly property real maxViewY: Math.max(0, view.contentHeight - height)
@@ -164,6 +163,7 @@ Item {
         delegate: Workspace {
             activeWsId: root.activeSpecialId
             ws: modelData
+            special: true
             monitor: root.monitor
             offMonitorColour: Colours.palette.m3outline
             displayType: Config.bar.workspaces.specialDisplayType
@@ -223,11 +223,11 @@ Item {
 
             const ws = view.itemAt(event.x, event.y - view.y) as Workspace;
             if (ws) {
-                const match = Hypr.workspaces.values.find(w => w.id === ws.ws);
+                const match = Wm.workspaceForId(ws.ws);
                 if (match)
-                    Hypr.toggleSpecial(Hypr.trimWsName(match.name));
+                    Wm.hyprland?.toggleSpecialWorkspace(Wm.trimWsName(match.name));
             } else {
-                Hypr.toggleSpecial("special");
+                Wm.hyprland?.toggleSpecialWorkspace("special");
             }
         }
     }

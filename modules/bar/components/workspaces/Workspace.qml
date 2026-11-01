@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Hyprland
 import M3Shapes
 import Caelestia.Components
 import Caelestia.Config
@@ -18,7 +17,8 @@ Item {
     required property int index
     required property int activeWsId
     required property int ws
-    required property HyprlandMonitor monitor
+    required property var monitor
+    property bool special
 
     required property int displayType
     required property bool showWindows
@@ -27,7 +27,8 @@ Item {
     property string occupiedLabel
     property string label
 
-    readonly property list<HyprlandToplevel> toplevels: Hypr.toplevelsForWs(ws, GlobalConfig.bar.workspaces.ignoredTags)
+    readonly property var workspace: special ? Wm.workspaceForId(ws) : Wm.workspaceForIndex(ws, monitor)
+    readonly property var toplevels: Wm.toplevelsForWs(workspace, GlobalConfig.bar.workspaces.ignoredTags)
     readonly property bool isOccupied: toplevels.length > 0
     readonly property bool hasWindows: isOccupied && showWindows && Config.bar.workspaces.maxWindowIcons > 0
     readonly property bool focused: activeWsId === ws
@@ -37,8 +38,8 @@ Item {
     readonly property bool onOtherMonitor: {
         if (Config.bar.workspaces.perMonitor)
             return false;
-        const mon = Hypr.workspaces.values.find(w => w.id === ws)?.monitor;
-        return !!(mon && mon !== monitor);
+        const mon = workspace?.monitor;
+        return !!(mon && mon.id !== monitor?.id);
     }
     readonly property color fgColour: {
         if (onOtherMonitor)
@@ -128,8 +129,8 @@ Item {
                 if (label)
                     return label;
 
-                const ws = Hypr.workspaces.values.find(w => w.id === root.ws);
-                const wsName = !ws || ws.name == root.ws ? root.ws : Hypr.trimWsName(ws.name)[0];
+                const ws = root.workspace;
+                const wsName = !ws || ws.name == root.ws ? root.ws : Wm.trimWsName(ws.name)[0];
 
                 const capitalisation = Config.bar.workspaces.capitalisation;
                 if (capitalisation === BarWorkspaceCapitalisation.Upper)
@@ -228,7 +229,7 @@ Item {
 
                     grade: 0
                     horizontalAlignment: Text.AlignHCenter
-                    text: Icons.getAppCategoryIcon(modelData.lastIpcObject.class, "terminal")
+                    text: Icons.getAppCategoryIcon(modelData.appId, "terminal")
                     color: root.onOtherMonitor ? root.offMonitorColour : Colours.palette.m3onSurfaceVariant
 
                     opacity: LazyListView.adding || LazyListView.removing ? 0 : 1
@@ -250,24 +251,7 @@ Item {
     component WsIconCacher: QtObject {
         id: cacher
 
-        property string name
-        readonly property string icon: Icons.matchIconRuleList(Hypr.trimWsName(name), root.iconRules)
-        readonly property HyprlandWorkspace wsObj: Hypr.workspaces.values.find(w => w.id === root.ws) ?? null
-
-        readonly property Connections conn: Connections {
-            function onNameChanged(): void {
-                cacher.updateName();
-            }
-
-            target: cacher.wsObj
-        }
-
-        function updateName(): void {
-            if (wsObj)
-                name = wsObj.name;
-        }
-
-        onWsObjChanged: updateName()
-        Component.onCompleted: updateName()
+        readonly property string name: root.workspace?.name ?? ""
+        readonly property string icon: Icons.matchIconRuleList(Wm.trimWsName(name), root.iconRules)
     }
 }

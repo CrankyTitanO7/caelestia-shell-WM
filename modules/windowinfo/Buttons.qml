@@ -92,12 +92,10 @@ ColumnLayout {
 
             WButton {
                 required property int index
-                readonly property int wsId: Math.floor((Hypr.activeWsId - 1) / 10) * 10 + index + 1
-                readonly property bool isCurrent: root.client?.workspace.id === wsId
+                readonly property int wsId: Math.floor((Wm.activeWsIndex - 1) / 10) * 10 + index + 1
+                readonly property bool isCurrent: root.client?.workspace?.index === wsId
 
-                onClicked: {
-                    Hypr.dispatch(Hypr.usingLua ? `hl.dsp.window.move({ window = "address:0x${root.client?.address}", workspace = "${wsId}", follow = true })` : `movetoworkspace ${wsId},address:0x${root.client?.address}`);
-                }
+                onClicked: Wm.moveWindowToWorkspace(root.client, wsId, true)
 
                 color: isCurrent ? Colours.tPalette.m3surfaceContainerHighest : Colours.palette.m3tertiaryContainer
                 textColor: isCurrent ? Colours.palette.m3onSurface : Colours.palette.m3onTertiaryContainer
@@ -113,18 +111,18 @@ ColumnLayout {
         Layout.rightMargin: Tokens.padding.large
         Layout.bottomMargin: Tokens.padding.large
 
-        spacing: root.client?.lastIpcObject.floating ? Tokens.spacing.medium : Tokens.spacing.small
+        spacing: root.client?.floating ? Tokens.spacing.medium : Tokens.spacing.small
 
         WButton {
             color: Colours.palette.m3secondaryContainer
             textColor: Colours.palette.m3onSecondaryContainer
-            text: root.client?.lastIpcObject.floating ? Tr.tr("Tile") : Tr.tr("Float")
-            onClicked: Hypr.dispatch(Hypr.usingLua ? `hl.dsp.window.float({ window = "address:0x${root.client?.address}" })` : `togglefloating address:0x${root.client?.address}`)
+            text: root.client?.floating ? Tr.tr("Tile") : Tr.tr("Float")
+            onClicked: Wm.toggleFloating(root.client)
         }
 
         Loader {
             asynchronous: true
-            active: root.client?.lastIpcObject.floating ?? false
+            active: (root.client?.floating ?? false) && Wm.supportsPinning
             Layout.fillWidth: active
             Layout.leftMargin: active ? 0 : -parent.spacing
             Layout.rightMargin: active ? 0 : -parent.spacing
@@ -132,8 +130,8 @@ ColumnLayout {
             sourceComponent: WButton {
                 color: Colours.palette.m3secondaryContainer
                 textColor: Colours.palette.m3onSecondaryContainer
-                text: root.client?.lastIpcObject.pinned ? Tr.tr("Unpin") : Tr.tr("Pin")
-                onClicked: Hypr.dispatch(Hypr.usingLua ? `hl.dsp.window.pin({ window = "address:0x${root.client?.address}" })` : `pin address:0x${root.client?.address}`)
+                text: root.client?.pinned ? Tr.tr("Unpin") : Tr.tr("Pin")
+                onClicked: Wm.togglePinned(root.client)
             }
         }
 
@@ -141,7 +139,7 @@ ColumnLayout {
             color: Colours.palette.m3errorContainer
             textColor: Colours.palette.m3onErrorContainer
             text: Tr.tr("Kill")
-            onClicked: Hypr.dispatch(Hypr.usingLua ? `hl.dsp.window.kill({ window = "address:0x${root.client?.address}" })` : `killwindow address:0x${root.client?.address}`)
+            onClicked: Wm.closeWindow(root.client)
         }
     }
 

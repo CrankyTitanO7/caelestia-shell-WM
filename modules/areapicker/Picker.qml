@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import Quickshell.Wayland
 import Caelestia
 import Caelestia.I18n
@@ -18,8 +17,8 @@ MouseArea {
 
     property bool onClient
 
-    property real realBorderWidth: onClient ? (Hypr.options["general:border_size"] ?? 1) : 2
-    property real realRounding: onClient ? (Hypr.options["decoration:rounding"] ?? 0) : 0
+    property real realBorderWidth: onClient ? Wm.borderWidth : 2
+    property real realRounding: onClient ? Wm.borderRounding : 0
 
     property real ssx
     property real ssy
@@ -35,22 +34,17 @@ MouseArea {
     property real sh: Math.abs(sy - ey)
 
     property list<var> clients: {
-        const mon = Hypr.monitorFor(screen);
+        const mon = Wm.monitorFor(screen);
         if (!mon)
             return [];
 
-        const special = mon.lastIpcObject?.specialWorkspace;
-        const wsId = special?.name ? special.id : mon.activeWorkspace?.id;
-        if (wsId === undefined)
+        const workspace = mon.specialWorkspace ?? mon.activeWorkspace;
+        if (!workspace)
             return [];
 
-        return Hypr.toplevelsForWs(wsId).sort((a, b) => {
+        return Wm.toplevelsForWs(workspace).sort((a, b) => {
             // Pinned first, then fullscreen, then floating, then any other
-            const ac = a?.lastIpcObject;
-            const bc = b?.lastIpcObject;
-            if (!ac || !bc)
-                return !ac - !bc; // Missing IPC last
-            return (bc.pinned - ac.pinned) || ((bc.fullscreen !== 0) - (ac.fullscreen !== 0)) || (bc.floating - ac.floating);
+            return (b.pinned - a.pinned) || ((b.fullscreenState !== 0) - (a.fullscreenState !== 0)) || (b.floating - a.floating);
         });
     }
 
@@ -59,14 +53,11 @@ MouseArea {
             if (!client)
                 continue;
 
-            const ipc = client.lastIpcObject;
-            if (!ipc?.at || !ipc?.size)
+            if (!client.position || !client.size)
                 continue;
 
-            let {
-                at: [cx, cy],
-                size: [cw, ch]
-            } = ipc;
+            let [cx, cy] = client.position;
+            const [cw, ch] = client.size;
             cx -= screen.x;
             cy -= screen.y;
             if (cx <= x && cy <= y && cx + cw >= x && cy + ch >= y) {
@@ -101,7 +92,7 @@ MouseArea {
     cursorShape: Qt.CrossCursor
 
     Component.onCompleted: {
-        Hypr.extras.refreshOptions();
+        Wm.hyprland?.extras.refreshOptions();
 
         // Break binding if frozen
         if (loader.freeze)
@@ -109,21 +100,26 @@ MouseArea {
 
         opacity = 1;
 
-        const ipc = clients[0]?.lastIpcObject;
-        if (ipc?.at && ipc?.size) {
-            const cx = ipc.at[0] - screen.x;
-            const cy = ipc.at[1] - screen.y;
+        const client = clients[0];
+        if (client?.position && client?.size) {
+            const cx = client.position[0] - screen.x;
+            const cy = client.position[1] - screen.y;
             onClient = true;
             sx = cx;
             sy = cy;
-            ex = cx + ipc.size[0];
-            ey = cy + ipc.size[1];
+            ex = cx + client.size[0];
+            ey = cy + client.size[1];
         } else {
             sx = screen.width / 2 - 100;
             sy = screen.height / 2 - 100;
             ex = screen.width / 2 + 100;
             ey = screen.height / 2 + 100;
         }
+
+        Wm.queryCursorPosition(pos => {
+            if (pos)
+                root.checkClientRects(pos.x - root.screen.x, pos.y - root.screen.y);
+        });
     }
 
     onPressed: event => {
@@ -197,17 +193,6 @@ MouseArea {
             target: root.loader
             property: "activeAsync"
             value: false
-        }
-    }
-
-    Process {
-        running: true
-        command: ["hyprctl", "cursorpos", "-j"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const pos = JSON.parse(text);
-                root.checkClientRects(pos.x - root.screen.x, pos.y - root.screen.y);
-            }
         }
     }
 

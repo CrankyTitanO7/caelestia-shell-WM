@@ -79,12 +79,12 @@ ColumnLayout {
         const ch = childAt(width / 2, y) as EntryWrapper;
         if (ch?.entryId === "workspaces" && Config.bar.scrollActions.workspaces) {
             // Workspace scroll
-            const mon = Hypr.monitorFor(screen);
-            const specialWs = mon?.lastIpcObject.specialWorkspace.name;
+            const mon = Wm.monitorFor(screen);
+            const specialWs = mon?.specialWorkspace?.name;
             if (specialWs?.length > 0)
-                Hypr.dispatch(Hypr.usingLua ? `hl.dsp.workspace.toggle_special("${specialWs.slice(8)}")` : `togglespecialworkspace ${specialWs.slice(8)}`);
-            else if (angleDelta.y < 0 || mon.activeWorkspace?.id > 1)
-                Hypr.dispatch(Hypr.usingLua ? `hl.dsp.focus({ workspace = "r${angleDelta.y > 0 ? "-" : "+"}1" })` : `workspace r${angleDelta.y > 0 ? "-" : "+"}1`);
+                Wm.hyprland?.toggleSpecialWorkspace(Wm.trimWsName(specialWs));
+            else if (angleDelta.y < 0 || (mon?.activeWorkspace?.index ?? 1) > 1)
+                Wm.focusRelativeWorkspace(angleDelta.y > 0 ? "up" : "down");
         } else if (y < screen.height / 2 && Config.bar.scrollActions.volume) {
             // Volume scroll on top half
             if (angleDelta.y > 0)

@@ -3,7 +3,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Effects
 import Quickshell
-import Quickshell.Hyprland
 import Caelestia
 import Caelestia.Components
 import Caelestia.Config
@@ -16,9 +15,9 @@ ClipRect {
     required property ShellScreen screen
     required property bool fullscreen
 
-    readonly property HyprlandMonitor monitor: Hypr.monitorFor(screen)
-    readonly property bool onSpecial: monitor?.lastIpcObject.specialWorkspace?.name !== ""
-    readonly property int activeWsId: monitor.activeWorkspace?.id ?? 1
+    readonly property var monitor: Wm.monitorFor(screen)
+    readonly property bool onSpecial: !!monitor?.specialWorkspace
+    readonly property int activeWsId: monitor?.activeWorkspace?.index ?? 1
     readonly property int activeWsIdx: workspaceIndex(activeWsId)
     readonly property int shown: Math.max(1, Config.bar.workspaces.shown)
 
@@ -30,15 +29,15 @@ ClipRect {
 
         const allMonitors = !Config.bar.workspaces.perMonitor;
         const ignoredTags = GlobalConfig.bar.workspaces.ignoredTags;
-        const workspaces = Hypr.workspaces.values.filter(w => w.id > 0 && (allMonitors || w.monitor === root.monitor) && (w.id === activeWsId || w.toplevels.values.some(t => !Hypr.isToplevelIgnored(t, ignoredTags))));
-        const currentIdx = workspaces.findIndex(w => w.id === activeWsId);
+        const workspaces = Wm.workspaces.filter(w => !w.special && (allMonitors || w.monitorId === root.monitor?.id) && (w.index === activeWsId || w.toplevels.some(t => !Wm.isToplevelIgnored(t, ignoredTags)))).sort((a, b) => a.index - b.index);
+        const currentIdx = workspaces.findIndex(w => w.index === activeWsId);
         if (currentIdx < 0)
             return [];
 
         const end = CUtils.clamp(currentIdx + 1, Math.min(shown, workspaces.length), workspaces.length);
         const start = Math.max(0, end - shown);
 
-        return workspaces.slice(start, end).map(w => w.id);
+        return workspaces.slice(start, end).map(w => w.index);
     }
 
     readonly property var workspaces: {
@@ -175,10 +174,10 @@ ClipRect {
                 const ws = (workspaces.itemAt(event.x, event.y) as Workspace)?.ws;
                 if (!ws)
                     return;
-                if (Hypr.activeWsId !== ws)
-                    Hypr.focusWorkspace(ws);
+                if (root.activeWsId !== ws)
+                    Wm.focusWorkspace(ws);
                 else
-                    Hypr.toggleSpecial("special");
+                    Wm.hyprland?.toggleSpecialWorkspace("special");
             }
         }
 
@@ -199,7 +198,7 @@ ClipRect {
         anchors.fill: parent
 
         asynchronous: true
-        active: opacity > 0
+        active: Wm.supportsSpecialWorkspaces && opacity > 0
         opacity: root.onSpecial ? 1 : 0
 
         sourceComponent: Item {
