@@ -45,7 +45,7 @@ Singleton {
     }
     readonly property string kbLayout: {
         const raw = kbLayoutFull;
-        if (!raw)
+        if (!raw || raw === Tr.trCtx("Unknown", "keyboard layout"))
             return "??";
         return kbMap.get(raw) ?? raw;
     }

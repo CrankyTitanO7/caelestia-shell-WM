@@ -11,10 +11,15 @@ Scope {
     id: root
 
     function applyGameMode(): void {
+        if (!Wm.isHyprland)
+            return;
         Wm.hyprland?.extras.applyOptions(GlobalConfig.utilities.gameMode.options);
     }
 
     function syncState(enableDisable: bool): void {
+        if (!Wm.isHyprland)
+            return;
+
         if (RuntimeState.gameMode) {
             root.applyGameMode();
             if (GlobalConfig.utilities.toasts.gameModeChanged)

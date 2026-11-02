@@ -27,7 +27,7 @@ Item {
     property string occupiedLabel
     property string label
 
-    readonly property var workspace: special ? Wm.workspaceForId(ws) : Wm.workspaceForIndex(ws, monitor)
+    readonly property var workspace: special ? Wm.workspaceForId(ws) : Wm.workspaceForIndex(ws, Config.bar.workspaces.perMonitor ? monitor : null)
     readonly property var toplevels: Wm.toplevelsForWs(workspace, GlobalConfig.bar.workspaces.ignoredTags)
     readonly property bool isOccupied: toplevels.length > 0
     readonly property bool hasWindows: isOccupied && showWindows && Config.bar.workspaces.maxWindowIcons > 0
