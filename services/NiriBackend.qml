@@ -387,8 +387,8 @@ Item {
 
         for (const monitor of monitors) {
             monitor.activeWorkspace = workspaces.find(workspace => workspace.monitorId === monitor.id && workspace.active) ?? workspaces.find(workspace => workspace.monitorId === monitor.id) ?? null;
-            monitor.toplevels = monitor.activeWorkspace?.toplevels ?? [];
-            monitor.windowCount = workspaces.filter(workspace => workspace.monitorId === monitor.id).reduce((count, workspace) => count + workspace.windowCount, 0);
+            monitor.toplevels = toplevels.filter(toplevel => toplevel.monitor === monitor);
+            monitor.windowCount = monitor.toplevels.length;
         }
 
         _focusedWorkspace = workspaces.find(workspace => workspace.focused) ?? workspaces.find(workspace => workspace.monitor?.focused) ?? workspaces[0] ?? null;
