@@ -15,63 +15,23 @@ https://github.com/user-attachments/assets/0840f496-575c-4ca6-83a8-87bb01a85c5f
 ## Components
 
 - Widgets: [`Quickshell`](https://quickshell.outfoxxed.me)
-- Window manager: [`Hyprland`](https://hypr.land)
-- Dots: [`caelestia`][dots-repo]
+- Window managers: [`Hyprland`](https://hypr.land) or [`Niri`](https://github.com/YaLTeR/niri)
+- Dots: [`caelestia`][dots-repo] (optional)
 
 ## Installation
 
 > [!NOTE]
-> This repo is for Caelestia's desktop shell only. If you want installation instructions
-> for the entire dotfiles (which include this shell), head to [the main repo][dots-repo] instead.
+> This fork adds a generic window-manager layer with Hyprland and Niri backends. The upstream
+> `caelestia-shell` AUR/Nix packages install the original shell and do not include these changes.
+> Install this repository from source.
 
-### Arch Linux
+### Dependencies
 
-> [!WARNING]
-> If you want to make your own changes/tweaks to the shell, do NOT edit the files installed by the AUR
-> package. Instead, follow the instructions in the [manual installation section](#manual-installation).
+Runtime dependencies:
 
-The shell is available from the AUR as `caelestia-shell`. You can install it with an AUR helper (recommended),
-like [`paru`](https://github.com/morganamilo/paru), or by manually downloading the PKGBUILD and running `makepkg -si`.
-
-A package following the latest commit also exists as `caelestia-shell-git`. This is bleeding-edge
-and likely to be unstable/have bugs. Regular users are recommended to use the stable package (`caelestia-shell`).
-
-### Nix
-
-You can run the shell directly via `nix run`:
-
-```sh
-nix run github:caelestia-dots/shell#with-cli
-```
-
-Or add it to your system configuration:
-
-```nix
-{
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-
-    caelestia-shell = {
-      url = "github:caelestia-dots/shell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-  };
-}
-```
-
-For full functionality, use `caelestia-shell.packages.<system>.with-cli`, which can be added to your
-`environment.systemPackages`, `users.users.<username>.packages`, `home.packages` if using home-manager,
-or a devshell. The `default` package does not include the CLI.
-You can then run the shell with `caelestia-shell`.
-
-For home-manager, you can also use Caelestia's Home Manager module (explained in [the configuration section](#home-manager-module)), which installs and configures the shell and CLI.
-
-### Manual installation
-
-Dependencies:
-
-- [`caelestia-cli`](https://github.com/caelestia-dots/cli)
-- [`quickshell-git`](https://git.outfoxxed.me/quickshell/quickshell) - this has to be the git version, not the latest tagged version
+- [`quickshell`](https://quickshell.outfoxxed.me) (git version, not the latest tagged release)
+- [`Hyprland`](https://hypr.land) with `hyprctl`, or [`Niri`](https://github.com/YaLTeR/niri) with `niri msg`
+- [`caelestia-cli`](https://github.com/caelestia-dots/cli) (optional; provides `caelestia shell`, wallpaper and scheme commands)
 - `glibc`
 - `gcc-libs`
 - [`ddcutil`](https://github.com/rockowitz/ddcutil)
@@ -90,7 +50,7 @@ Dependencies:
 - `qt6-declarative`
 - `qt6-imageformats`
 - `qt6-multimedia`
-- [`qt6-m3shapes-git`](https://github.com/soramanew/m3shapes)
+- [`m3shapes`](https://github.com/soramanew/m3shapes)
 - [`swappy`](https://github.com/jtheoof/swappy)
 - [`fish`](https://github.com/fish-shell/fish-shell)
 - [`bash`](https://www.gnu.org/software/bash)
@@ -101,62 +61,131 @@ Build dependencies:
 - [`ninja`](https://github.com/ninja-build/ninja)
 - `qt6-shadertools`
 
-> [!IMPORTANT]
-> The commands below (and in the "Updating" section) assume `$XDG_CONFIG_HOME` is set.
-> If it is unset, substitute it with the path to your config folder (typically `~/.config`).
+### Build and install
 
-To install the shell manually, install all dependencies and clone this repo to `$XDG_CONFIG_HOME/quickshell/caelestia`.
-Then build and install using CMake.
+Clone this repository and install it system-wide:
 
 ```sh
-cd $XDG_CONFIG_HOME/quickshell
-git clone https://github.com/caelestia-dots/shell.git caelestia
+git clone https://github.com/CrankyTitanO7/caelestia-shell-WM.git
+cd caelestia-shell-WM
 
-cd caelestia
-cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/
+cmake -B build -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/ \
+  -DVERSION=0.0.0 \
+  -DGIT_REVISION="$(git rev-parse HEAD)"
 cmake --build build
 sudo cmake --install build
 ```
 
+This installs the Quickshell config to `/etc/xdg/quickshell/caelestia` and the QML plugin and
+libraries system-wide.
+
+For local development, install the Quickshell config into your user directory instead (the QML
+plugin and libraries still install system-wide):
+
+```sh
+cmake -B build -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/ \
+  -DINSTALL_QSCONFDIR="$HOME/.config/quickshell/caelestia" \
+  -DVERSION=0.0.0 \
+  -DGIT_REVISION="$(git rev-parse HEAD)"
+cmake --build build
+sudo cmake --install build
+sudo chown -R "$USER" "$HOME/.config/quickshell/caelestia"
+```
+
 > [!TIP]
-> You can customise the installation location via the CMake flags `INSTALL_LIBDIR`, `INSTALL_QMLDIR`, and
-> `INSTALL_QSCONFDIR` for the libraries (e.g. the version helper), QML plugin, and Quickshell config directories
-> respectively. If you set the `INSTALL_LIBDIR` flag, the `CAELESTIA_LIB_DIR` variable must also be set to
-> the same directory in your system's environment.
->
-> For example, installing to `~/.config/quickshell/caelestia` for easy local changes:
->
-> ```sh
-> mkdir -p ~/.config/quickshell/caelestia
-> cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/ -DINSTALL_QSCONFDIR="$HOME/.config/quickshell/caelestia"
-> cmake --build build
-> sudo cmake --install build
-> sudo chown -R $USER ~/.config/quickshell/caelestia
-> ```
+> `INSTALL_LIBDIR`, `INSTALL_QMLDIR`, and `INSTALL_QSCONFDIR` can be overridden for a non-standard
+> install layout. If `INSTALL_LIBDIR` is changed, also set `CAELESTIA_LIB_DIR` in the shell
+> environment to the same directory.
+
+### Select the window manager
+
+Create `~/.config/caelestia/shell.json` and set `general.windowManager` to `Hyprland` or `Niri`:
+
+```json
+{
+  "general": {
+    "windowManager": "Niri"
+  }
+}
+```
+
+`Hyprland` is used when this option is omitted. Changing the option switches the backend at
+runtime; restart the shell if the switch does not apply cleanly.
+
+### Start the shell
+
+```sh
+qs -c caelestia -n -d
+```
+
+You can omit `-d` to keep the shell attached to the terminal.
+
+Autostart examples:
+
+**Hyprland** (`hyprland.conf`):
+
+```ini
+exec-once = qs -c caelestia -n -d
+```
+
+**Niri** (`config.kdl`):
+
+```kdl
+spawn-at-startup "qs" "-c" "caelestia" "-n" "-d"
+```
+
+> [!NOTE]
+> The Niri backend reads `NIRI_SOCKET`. Launching the shell from Niri's `spawn-at-startup` provides
+> this automatically. If you start the shell from systemd or another session manager, make sure
+> `NIRI_SOCKET` is exported.
+
+### Window manager notes
+
+- **Hyprland:** special workspaces, window pinning, game mode, and global shortcuts are available.
+- **Niri:** the backend uses `niri msg` and the Niri event stream. Hyprland-only features such as
+  special workspaces, pinning, and game mode are hidden. Niri does not expose fullscreen state over
+  IPC, so fullscreen auto-hide is unavailable.
 
 ## Usage
 
-You can start the shell by running `caelestia shell -d` (preferred) or `qs -c caelestia -n -d`.
-You may omit `-d` from the command to keep the shell attached to the current terminal if necessary,
-though you likely want it to be detached (so it doesn't close when the terminal is closed).
+The shell is controlled through its IPC interface. If `caelestia-cli` is installed, commands can
+be run with `caelestia shell ...`; otherwise use `qs ipc -c caelestia ...`.
 
-If using the [Caelestia dotfiles][dots-repo], the shell will be autostarted on login
-via a `hl.on("hyprland.start", ...)` function in the Hyprland config.
+```sh
+qs ipc -c caelestia call mpris getActive trackTitle
+```
+
+List the available IPC targets and functions with:
+
+```sh
+qs ipc -c caelestia show
+```
 
 ### Shortcuts/IPC
 
-All keybinds are accessible via Hyprland [global shortcuts](https://wiki.hypr.land/Configuring/Basics/Binds/#dbus-global-shortcuts).
-If using the [Caelestia dotfiles][dots-repo], the keybinds are already configured for you.
-Otherwise, the [`keybinds.lua`](https://github.com/caelestia-dots/caelestia/blob/main/hypr/hyprland/keybinds.lua#L63-L67) file
-contains an example of how to use global shortcuts.
+Hyprland users can use Hyprland [global shortcuts](https://wiki.hypr.land/Configuring/Basics/Binds/#dbus-global-shortcuts).
+If using the [Caelestia dotfiles][dots-repo], the keybinds are already configured. Otherwise, the
+[`keybinds.lua`](https://github.com/caelestia-dots/caelestia/blob/main/hypr/hyprland/keybinds.lua#L63-L67)
+file contains an example of how to use global shortcuts.
 
-All IPC commands can be accessed via `caelestia shell ...`, for example:
+Niri has no equivalent global-shortcut protocol. Bind shell IPC commands in your Niri config
+instead, for example:
 
-```sh
-caelestia shell mpris getActive trackTitle
+```kdl
+Mod+Space { spawn "qs" "ipc" "-c" "caelestia" "call" "drawers" "toggle" "launcher"; }
+Mod+Shift+E { spawn "qs" "ipc" "-c" "caelestia" "call" "drawers" "toggle" "sidebar"; }
+Mod+Shift+S { spawn "qs" "ipc" "-c" "caelestia" "call" "nexus" "open"; }
 ```
 
-You can view the list of available IPC commands by running `caelestia shell -s`.
+List the available drawer names with:
+
+```sh
+qs ipc -c caelestia call drawers list
+```
 
 ### PFP/Wallpapers
 
@@ -167,28 +196,22 @@ The wallpapers for the wallpaper switcher are read from `~/Pictures/Wallpapers`
 by default. To change it, modify `paths.wallpaperDir` in `~/.config/caelestia/shell.json`.
 
 To set the wallpaper, you can type `>wallpaper` in the launcher to open the wallpaper switcher.
-Alternatively, you can also use `caelestia wallpaper -f <path_to_wallpaper>` to set the wallpaper directly.
-Use `caelestia wallpaper -h` for more info about this command.
+If `caelestia-cli` is installed, you can also use `caelestia wallpaper -f <path_to_wallpaper>` to set
+the wallpaper directly. Use `caelestia wallpaper -h` for more info about this command.
 
 ## Updating
 
-### Packaged install (AUR)
-
-If using the full dotfiles or the CLI, run `caelestia update` to perform a full system update and
-update the dots.
-Otherwise, if you installed the shell on its own, update your system using your AUR helper (e.g., `paru`).
-
-### Manual install
-
-If you installed the shell manually by cloning the repo, you can update by pulling the changes from git
-in the local checkout.
-
-For example, if you installed to `$XDG_CONFIG_HOME/quickshell/caelestia`:
+Pull the latest changes and reinstall:
 
 ```sh
-cd $XDG_CONFIG_HOME/quickshell/caelestia
+cd caelestia-shell-WM
 git pull
+cmake --build build
+sudo cmake --install build
 ```
+
+If the CMake configuration changed, rerun the `cmake -B build ...` command from the
+[build and install section](#build-and-install) first.
 
 ## Configuring
 
@@ -202,7 +225,11 @@ You can configure per-monitor options in `~/.config/caelestia/monitors/<monitor_
 List the names of your available monitors by running:
 
 ```sh
+# Hyprland
 hyprctl monitors -j | jq -r '.[].name'
+
+# Niri
+niri msg --json outputs | jq -r 'keys[]'
 ```
 
 Options set in these files will **override** the respective options in the global config. Any options not present in
@@ -975,55 +1002,21 @@ token values to produce the final computed values.
 Per-monitor token overrides are also available at
 `~/.config/caelestia/monitors/<monitor_name>/shell-tokens.json`.
 
-### Home Manager Module
-
-For NixOS users, a Home Manager module is also available.
-
-<details><summary><code>home.nix</code></summary>
-
-```nix
-programs.caelestia = {
-  enable = true;
-  systemd = {
-    enable = false; # if you prefer starting from your compositor
-    target = "graphical-session.target";
-    environment = [];
-  };
-  settings = {
-    bar.statusIcons = [
-      { id = "lockStatus"; enabled = true; }
-      { id = "network"; enabled = true; }
-      { id = "bluetooth"; enabled = true; }
-      { id = "battery"; enabled = false; }
-    ];
-    paths.wallpaperDir = "~/Images";
-  };
-  cli = {
-    enable = true; # Also add caelestia-cli to path
-    settings = {
-      theme.enableGtk = false;
-    };
-  };
-};
-```
-
-The module automatically adds the shell to the path with **full functionality**. The CLI is not required; however, you can enable and configure it.
-
-</details>
-
 ## FAQ
 
 ### Need help or support?
 
 You can join the Caelestia Discord server for assistance and discussion [here][discord].
 
-### I want to make my own changes to the Hyprland config!
+### I want to make my own changes to the compositor config!
 
-Check out the configuring section on the [dots repo](https://github.com/caelestia-dots/caelestia#configuring).
+For Hyprland, check out the configuring section on the
+[dots repo](https://github.com/caelestia-dots/caelestia#configuring). For Niri, edit your
+`~/.config/niri/config.kdl`.
 
 ### I want to make my own changes to other stuff!
 
-See the [manual installation](#manual-installation) section for the corresponding repo.
+See the [installation](#installation) section and the corresponding upstream repository.
 
 ### I want to disable \_\_\_ feature!
 
