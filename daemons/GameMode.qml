@@ -47,6 +47,11 @@ Scope {
                 root.applyGameMode();
         }
 
+        function onHyprlandChanged(): void {
+            if (RuntimeState.gameMode)
+                root.applyGameMode();
+        }
+
         target: Wm
     }
 

@@ -113,6 +113,10 @@ Singleton {
             root.reloadHyprRules();
         }
 
+        function onHyprlandChanged(): void {
+            root.reloadHyprRules();
+        }
+
         target: Wm
     }
 
