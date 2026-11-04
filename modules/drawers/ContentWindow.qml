@@ -59,7 +59,9 @@ StyledWindow {
     name: "drawers"
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: (fsTransitionProg > 0 && contentItem.Config.general.showOverFullscreen) || (hasSpecialWorkspace && hasFullscreenOnNormalWs) ? WlrLayer.Overlay : WlrLayer.Top
-    WlrLayershell.keyboardFocus: screenState.launcher || screenState.session ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+    // Niri does not focus OnDemand layer surfaces automatically, so use Exclusive to
+    // grab the keyboard while a text-input panel is open (matches the old Niri shell).
+    WlrLayershell.keyboardFocus: screenState.launcher || screenState.session ? (Wm.isNiri ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand) : WlrKeyboardFocus.None
 
     mask: hasFullscreen ? emptyRegion : regions
 

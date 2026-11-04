@@ -64,7 +64,9 @@ WlSessionLockSurface {
             Anim {
                 target: background
                 property: "opacity"
-                to: 0
+                // Niri paints its locked-session background red, so keep the lock
+                // background opaque until the session lock is actually released.
+                to: Wm.isNiri ? 1 : 0
                 type: Anim.StandardLarge
             }
             SequentialAnimation {
