@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
 import Caelestia.Config
@@ -54,6 +55,35 @@ Variants {
                 anchors.fill: parent
                 screen: win.modelData
                 wallpaper: wallpaper
+            }
+        }
+
+        // Niri renders Background inside the overview backdrop, so put a blurred
+        // copy of the wallpaper and a subtle tint over it while in overview.
+        Loader {
+            id: overviewBackdrop
+
+            anchors.fill: parent
+            active: Wm.isNiri
+
+            sourceComponent: Item {
+                anchors.fill: parent
+                visible: Wm.inOverview && Config.background.wallpaperEnabled
+
+                MultiEffect {
+                    anchors.fill: parent
+                    source: wallpaper
+                    blurEnabled: true
+                    blur: 0.8
+                    blurMax: 64
+                    autoPaddingEnabled: false
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: Colours.palette.m3surface
+                    opacity: 0.15
+                }
             }
         }
 

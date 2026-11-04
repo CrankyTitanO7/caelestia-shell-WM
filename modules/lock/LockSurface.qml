@@ -20,7 +20,9 @@ WlSessionLockSurface {
     contentItem.Config.screen: screen.name
     contentItem.Tokens.screen: screen.name
 
-    color: "transparent"
+    // Opaque fallback so Niri's red locked-session background can never show
+    // through before the wallpaper/screencopy finishes painting.
+    color: "black"
 
     Connections {
         function onUnlock(): void {
@@ -162,7 +164,7 @@ WlSessionLockSurface {
         id: background
 
         anchors.fill: parent
-        opacity: 0
+        opacity: Wm.isNiri ? 1 : 0
 
         layer.enabled: true
         layer.effect: MultiEffect {
