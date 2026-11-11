@@ -20,8 +20,9 @@ WlSessionLockSurface {
     contentItem.Config.screen: screen.name
     contentItem.Tokens.screen: screen.name
 
-    // Opaque fallback so Niri's red locked-session background can never show
-    // through before the wallpaper/screencopy finishes painting.
+    // Opaque fallback so compositor-painted locked-session backgrounds (Niri's
+    // red, Umbriel's backdrop) can never show through before the
+    // wallpaper/screencopy finishes painting.
     color: "black"
 
     Connections {
@@ -66,9 +67,10 @@ WlSessionLockSurface {
             Anim {
                 target: background
                 property: "opacity"
-                // Niri paints its locked-session background red, so keep the lock
-                // background opaque until the session lock is actually released.
-                to: Wm.isNiri ? 1 : 0
+                // Niri and Umbriel paint their own locked-session background, so
+                // keep the lock background opaque until the session lock is
+                // actually released.
+                to: Wm.isNiri || Wm.isUmbriel ? 1 : 0
                 type: Anim.StandardLarge
             }
             SequentialAnimation {
@@ -164,7 +166,7 @@ WlSessionLockSurface {
         id: background
 
         anchors.fill: parent
-        opacity: Wm.isNiri ? 1 : 0
+        opacity: Wm.isNiri || Wm.isUmbriel ? 1 : 0
 
         layer.enabled: true
         layer.effect: MultiEffect {

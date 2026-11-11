@@ -9,13 +9,13 @@ Written with AI.
 ## Components
 
 - Widgets: [`Quickshell`](https://quickshell.outfoxxed.me)
-- Window managers: [`Hyprland`](https://hypr.land) or [`Niri`](https://github.com/YaLTeR/niri)
+- Window managers: [`Hyprland`](https://hypr.land), [`Niri`](https://github.com/YaLTeR/niri), or [`Umbriel`](https://github.com/noctalia-dev/umbriel)
 - Dots: [`caelestia`][dots-repo] (optional)
 
 ## Installation
 
 > [!NOTE]
-> This fork adds a generic window-manager layer with Hyprland and Niri backends. The upstream
+> This fork adds a generic window-manager layer with Hyprland, Niri, and Umbriel backends. The upstream
 > `caelestia-shell` AUR/Nix packages install the original shell and do not include these changes.
 > Install this repository from source.
 
@@ -24,7 +24,7 @@ Written with AI.
 Runtime dependencies:
 
 - [`quickshell`](https://quickshell.outfoxxed.me) (git version, not the latest tagged release)
-- [`Hyprland`](https://hypr.land) with `hyprctl`, or [`Niri`](https://github.com/YaLTeR/niri) with `niri msg`
+- [`Hyprland`](https://hypr.land) with `hyprctl`, [`Niri`](https://github.com/YaLTeR/niri) with `niri msg`, or [`Umbriel`](https://github.com/noctalia-dev/umbriel) with `umbriel msg`
 - [`caelestia-cli`](https://github.com/caelestia-dots/cli) (optional; provides `caelestia shell`, wallpaper and scheme commands)
 - `glibc`
 - `gcc-libs`
@@ -97,7 +97,7 @@ sudo chown -R "$USER" "$HOME/.config/quickshell/caelestia"
 
 ### Select the window manager
 
-Create `~/.config/caelestia/shell.json` and set `general.windowManager` to `Hyprland` or `Niri`:
+Create `~/.config/caelestia/shell.json` and set `general.windowManager` to `Hyprland`, `Niri`, or `Umbriel`:
 
 ```json
 {
@@ -132,10 +132,18 @@ exec-once = qs -c caelestia -n -d
 spawn-at-startup "qs" "-c" "caelestia" "-n" "-d"
 ```
 
+**Umbriel** (`config.toml`):
+
+```toml
+[general]
+autostart = ["qs -c caelestia -n -d"]
+```
+
 > [!NOTE]
-> The Niri backend reads `NIRI_SOCKET`. Launching the shell from Niri's `spawn-at-startup` provides
-> this automatically. If you start the shell from systemd or another session manager, make sure
-> `NIRI_SOCKET` is exported.
+> The Niri backend reads `NIRI_SOCKET` and the Umbriel backend reads `UMBRIEL_SOCKET`. Launching the
+> shell from the compositor's autostart provides this automatically. When `UMBRIEL_SOCKET` is unset,
+> the backend falls back to `$XDG_RUNTIME_DIR/umbriel-$WAYLAND_DISPLAY.sock`. If you start the shell
+> from systemd or another session manager, make sure the corresponding variable is exported.
 
 ### Window manager notes
 
@@ -143,6 +151,9 @@ spawn-at-startup "qs" "-c" "caelestia" "-n" "-d"
 - **Niri:** the backend uses `niri msg` and the Niri event stream. Hyprland-only features such as
   special workspaces, pinning, and game mode are hidden. Niri does not expose fullscreen state over
   IPC, so fullscreen auto-hide is unavailable.
+- **Umbriel:** the backend uses `umbriel msg` and the Umbriel event stream. Window pinning, the
+  overview, and fullscreen auto-hide are available. Hyprland-only features such as special
+  workspaces and game mode are hidden.
 
 ## Usage
 
@@ -166,13 +177,24 @@ If using the [Caelestia dotfiles][dots-repo], the keybinds are already configure
 [`keybinds.lua`](https://github.com/caelestia-dots/caelestia/blob/main/hypr/hyprland/keybinds.lua#L63-L67)
 file contains an example of how to use global shortcuts.
 
-Niri has no equivalent global-shortcut protocol. Bind shell IPC commands in your Niri config
-instead, for example:
+Niri and Umbriel have no equivalent global-shortcut protocol. Bind shell IPC commands in your
+compositor config instead, for example:
+
+**Niri** (`config.kdl`):
 
 ```kdl
 Mod+Space { spawn "qs" "ipc" "-c" "caelestia" "call" "drawers" "toggle" "launcher"; }
 Mod+Shift+E { spawn "qs" "ipc" "-c" "caelestia" "call" "drawers" "toggle" "sidebar"; }
 Mod+Shift+S { spawn "qs" "ipc" "-c" "caelestia" "call" "nexus" "open"; }
+```
+
+**Umbriel** (`config.toml`):
+
+```toml
+[keybinds]
+"Mod+Space" = "spawn qs ipc -c caelestia call drawers toggle launcher"
+"Mod+Shift+E" = "spawn qs ipc -c caelestia call drawers toggle sidebar"
+"Mod+Shift+S" = "spawn qs ipc -c caelestia call nexus open"
 ```
 
 List the available drawer names with:
@@ -224,6 +246,9 @@ hyprctl monitors -j | jq -r '.[].name'
 
 # Niri
 niri msg --json outputs | jq -r 'keys[]'
+
+# Umbriel
+umbriel outputs --json | jq -r '.[].name'
 ```
 
 Options set in these files will **override** the respective options in the global config. Any options not present in
@@ -1006,7 +1031,8 @@ You can join the Caelestia Discord server for assistance and discussion [here][d
 
 For Hyprland, check out the configuring section on the
 [dots repo](https://github.com/caelestia-dots/caelestia#configuring). For Niri, edit your
-`~/.config/niri/config.kdl`.
+`~/.config/niri/config.kdl`. For Umbriel, edit your `~/.config/umbriel/config.toml`; see the
+[Umbriel configuration reference](https://docs.noctalia.dev/umbriel/configuration/).
 
 ### I want to make my own changes to other stuff!
 

@@ -19,7 +19,7 @@ namespace caelestia::shell::config {
     };
 
 ENUM(BarWorkspaceDisplay, Shapes, Text, Icons)
-ENUM(WindowManager, Hyprland, Niri)
+ENUM(WindowManager, Hyprland, Niri, Umbriel)
 ENUM(BarWorkspaceCapitalisation, Preserve, Upper, Lower)
 ENUM(LyricsBackend, Auto, Local, LRCLIB, NetEase)
 ENUM(GpuType, Auto, Nvidia, Generic, None)

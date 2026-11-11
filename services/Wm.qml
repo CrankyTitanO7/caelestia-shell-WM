@@ -12,11 +12,13 @@ Singleton {
 
     readonly property bool isHyprland: GlobalConfig.general.windowManager === WindowManager.Hyprland
     readonly property bool isNiri: GlobalConfig.general.windowManager === WindowManager.Niri
-    readonly property string backendName: isNiri ? "niri" : "hyprland"
+    readonly property bool isUmbriel: GlobalConfig.general.windowManager === WindowManager.Umbriel
+    readonly property string backendName: isNiri ? "niri" : isUmbriel ? "umbriel" : "hyprland"
 
     readonly property var hyprland: hyprlandLoader.item
     readonly property var niri: niriLoader.item
-    readonly property var backend: isNiri ? niri : hyprland
+    readonly property var umbriel: umbrielLoader.item
+    readonly property var backend: isNiri ? niri : isUmbriel ? umbriel : hyprland
 
     readonly property var toplevels: backend?.toplevels ?? []
     readonly property var workspaces: backend?.workspaces ?? []
@@ -56,8 +58,8 @@ Singleton {
     readonly property real borderRounding: backend?.borderRounding ?? 0
 
     readonly property bool supportsSpecialWorkspaces: isHyprland
-    readonly property bool supportsPinning: isHyprland
-    readonly property bool supportsOverview: isNiri
+    readonly property bool supportsPinning: isHyprland || isUmbriel
+    readonly property bool supportsOverview: isNiri || isUmbriel
     readonly property bool inOverview: backend?.inOverview ?? false
 
     signal configReloaded
@@ -156,6 +158,13 @@ Singleton {
         component: niriComponent
     }
 
+    LazyLoader {
+        id: umbrielLoader
+
+        active: root.isUmbriel
+        component: umbrielComponent
+    }
+
     Component {
         id: hyprlandComponent
 
@@ -166,6 +175,12 @@ Singleton {
         id: niriComponent
 
         NiriBackend {}
+    }
+
+    Component {
+        id: umbrielComponent
+
+        UmbrielBackend {}
     }
 
     Connections {

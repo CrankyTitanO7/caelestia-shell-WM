@@ -11,13 +11,16 @@ import qs.modules.nexus.common
 PageBase {
     id: root
 
-    // Window managers, ordered to match config::WindowManager (Hyprland, Niri)
+    // Window managers, ordered to match config::WindowManager (Hyprland, Niri, Umbriel)
     readonly property list<MenuItem> wmItems: [
         MenuItem {
             text: "Hyprland"
         },
         MenuItem {
             text: "Niri"
+        },
+        MenuItem {
+            text: "Umbriel"
         }
     ]
 
