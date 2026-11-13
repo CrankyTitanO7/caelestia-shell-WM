@@ -1025,7 +1025,9 @@ Per-monitor token overrides are also available at
 
 ### Need help or support?
 
-You can join the Caelestia Discord server for assistance and discussion [here][discord].
+<!-- You can join the Caelestia Discord server for assistance and discussion [here][discord]. -->
+if it's a caelestia problem, there's a caelestia discord (see upstream repo). 
+Otherwise open an issue or something, I'll probably do something.
 
 ### I want to make my own changes to the compositor config!
 
@@ -1041,7 +1043,7 @@ See the [installation](#installation) section and the corresponding upstream rep
 ### I want to disable \_\_\_ feature!
 
 Please read the [configuring](#configuring) section.
-If there is no corresponding option, make a [feature request](https://github.com/caelestia-dots/shell/issues/new?template=feature.yml).
+If there is no corresponding option, make a feature request
 
 ### How do I make my colour scheme change to match my wallpaper?
 
@@ -1061,28 +1063,14 @@ the launcher only shows an odd number of wallpapers at one time. If you only hav
 
 ## Credits
 
-Thanks to the Hyprland Discord community (especially the homies in #rice-discussion) for all the help and suggestions
-for improving these dots!
-
-A special thanks to [@outfoxxed](https://github.com/outfoxxed) for making Quickshell and the effort put into fixing issues
-and implementing various feature requests.
-
-Another special thanks to [@end_4](https://github.com/end-4) for his [config](https://github.com/end-4/dots-hyprland)
-which helped me a lot with learning how to use Quickshell.
-
-Finally, another thank you to all the configs I took inspiration from (only one for now):
-
-- [Axenide/Ax-Shell](https://github.com/Axenide/Ax-Shell)
+Honestly the makers of the caelestia shell did all the work, I just turn it into other window-manager backends.
 
 ## Stonks 📈
 
-<a href="https://www.star-history.com/#caelestia-dots/shell&Date">
-    <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=caelestia-dots/shell&type=Date&theme=dark" />
-        <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=caelestia-dots/shell&type=Date" />
-        <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=caelestia-dots/shell&type=Date" />
-    </picture>
+<a href="https://www.star-history.com/?repos=crankytitano7%2Fcaelestia-shell-wm.git&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=crankytitano7/caelestia-shell-wm.git&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=crankytitano7/caelestia-shell-wm.git&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=crankytitano7/caelestia-shell-wm.git&type=date&legend=top-left" />
+ </picture>
 </a>
-
-[dots-repo]: https://github.com/caelestia-dots/caelestia
-[discord]: https://caelestiashell.com/discord
